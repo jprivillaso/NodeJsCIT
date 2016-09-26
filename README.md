@@ -20,8 +20,8 @@ module.exports = {
 
 3. Instale Redis. 
 
-[Ubuntu 14.04](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-redis)
-[Ubuntu 16.04](https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-redis-on-ubuntu-16-04)
+- [Ubuntu 14.04](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-redis) 
+- [Ubuntu 16.04](https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-redis-on-ubuntu-16-04) 
 
 3. node app.js
 
