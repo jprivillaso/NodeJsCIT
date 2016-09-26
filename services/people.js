@@ -1,7 +1,6 @@
 var request = require('request');
 var conf    = require('../config/config');
 var async   = require('async');
-var utf8    = require('utf8');
 
 const baseUrl = 'https://people.cit.com.br/search/json/';
 

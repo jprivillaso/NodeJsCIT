@@ -1,5 +1,4 @@
 var servicePeople = require("../services/people");
-var _ = require('lodash');
 
 var peopleRoutes = function(app) {
   
