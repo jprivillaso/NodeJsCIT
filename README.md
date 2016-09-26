@@ -5,14 +5,18 @@ NodeJs Challenges
 
 1. Instale as dependencias
 
-    npm install
+```
+npm install
+```
     
 2. Crie um arquivo de config.js dentro da pasta config com o seguinte formato
 
-    module.exports = {  
-        user: 'user', 
-        password: 'password'
-    }
+```
+module.exports = {  
+    user: 'user', 
+    password: 'password'
+}
+```
 
 3. node app.js
 
