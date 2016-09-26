@@ -1,43 +1,26 @@
-var redis = require('redis');
+var redis   = require('redis');
 var express = require("express");
-var http = require('http');
+var http    = require('http');
 var request = require("request");
-var async = require("async");
-var servicePeople = require("./services/people");
-var conf = require("./config/config");
+var async   = require("async");
+var consign = require("consign");
 
-var port = 8080;
+var config = require("./config/config");
+
+var app    = express();
+var db     = redis.createClient();
 var server = http.createServer(app);
 
-var app = express();
+consign(config.consign)
+  .include('routes')
+  .into(app);
 
-app.get('/people', function(req, res) {
-
-    servicePeople.getAll(function(peoplelist){
-        res.json(peoplelist); 
-    });
-
+app.get('/', function(req, res) {
+    res.json('Hello Api');
 });
 
-app.listen(port, function(req, res) {
-    console.log("Running port -> " + port);
-});
-
-
-var client = redis.createClient();
-
-client.on('connect', function() {
-    console.log('connected');
-});
-
-client.set('framework', 'NodeJS');
-
-client.get('framework', function(err, reply) {
-    console.log(reply);
-});
-
-client.del('framework', function(err, reply) {
-    console.log(reply);
+app.listen(config.server.port, function(req, res) {
+    console.log("Running port -> " + config.server.port);
 });
 
 module.exports = app;
