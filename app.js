@@ -1,10 +1,10 @@
 var redis = require('redis');
-var conf = require("./config/config");
 var express = require("express");
 var http = require('http');
 var request = require("request");
 var async = require("async");
 var servicePeople = require("./services/people");
+var conf = require("./config/config");
 
 var port = 8080;
 var server = http.createServer(app);
