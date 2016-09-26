@@ -1,5 +1,5 @@
-# NodeJsCI-T
-NodeJs Challenges
+# NodeJs Challenges
+Exercícios de DOJOS para aprender NodeJs
 
 ## Instruções para Instalação
 
