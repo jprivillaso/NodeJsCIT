@@ -1,12 +1,27 @@
 var servicePeople = require("../services/people");
+var _ = require('lodash');
 
 var peopleRoutes = function(app) {
   
   app.get('/people', function(req, res) {
-
-    servicePeople.getAll(function(peoplelist){
-      res.json(peoplelist); 
-    });
+    
+    var queryFilters = req.query;
+    
+    if (queryFilters) {
+      
+      var q = queryFilters.q; 
+             
+      servicePeople.getAllByFilters(function(peoplelist, error){
+        res.send(peoplelist);
+      }, q);
+      
+    } else {
+      
+      servicePeople.getAll(function(peoplelist, error){
+        res.send(peoplelist);
+      });
+       
+    }
 
   });
   

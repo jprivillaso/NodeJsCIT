@@ -1,9 +1,11 @@
-var request = require("request");
-var conf    = require("../config/config");
-var async   = require("async");
+var request = require('request');
+var conf    = require('../config/config');
+var async   = require('async');
+var utf8    = require('utf8');
+
+const baseUrl = 'https://people.cit.com.br/search/json/';
 
 var options = {
-  url: 'https://people.cit.com.br/search/json/?q=BRASIL%20and%20Developer%20and%20BH',
   auth: {
     user: conf.api.user,
     password: conf.api.password
@@ -15,10 +17,33 @@ function getAll(callback) {
     var peoplelist = [];
     
     async.series([function(callback){
-      
+        
+        options.url = baseUrl + '?q=BRASIL%20and%20Developer%20and%20BH';
+        
         request(options, function(error, response, body) {
+            
+            peoplelist = body;
+            callback(peoplelist, null);
+            
+        });
+      
+    }], callback.bind(peoplelist));
+    
+}
+
+function getAllByFilters(callback, query) {
+    
+    var peoplelist = [];
+    
+    async.series([function(callback){
+        
+        options.url = baseUrl + '?q=' + query;
+                
+        request(options, function(error, response, body) {
+                
             peoplelist = body;
             callback(peoplelist);
+            
         });
       
     }], callback.bind(peoplelist));
@@ -26,5 +51,6 @@ function getAll(callback) {
 }
 
 module.exports = {
-    getAll: getAll
+    getAll: getAll,
+    getAllByFilters: getAllByFilters
 };

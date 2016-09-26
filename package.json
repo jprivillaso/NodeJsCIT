@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "nodemon app.js"
   },
   "author": "",
   "license": "ISC",
@@ -12,7 +12,12 @@
     "async": "^2.0.1",
     "consign": "^0.1.2",
     "express": "^4.14.0",
+    "lodash": "^4.16.2",
     "redis": "^2.6.2",
-    "request": "^2.75.0"
+    "request": "^2.75.0",
+    "utf8": "^2.1.1"
+  },
+  "devDependencies": {
+    "nodemon": "^1.10.2"
   }
 }
