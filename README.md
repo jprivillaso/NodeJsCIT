@@ -5,13 +5,13 @@ NodeJs Challenges
 
 1. Instale as dependencias
 
-```
+```ssh
 npm install
 ```
     
 2. Crie um arquivo de config.js dentro da pasta config com o seguinte formato
 
-```
+```js
 module.exports = {  
     user: 'user', 
     password: 'password'
