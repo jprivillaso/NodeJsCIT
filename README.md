@@ -16,6 +16,6 @@ NodeJs Challenges
 
 3. node app.js
 
-4. Abra o browser no endereço http://localhost:8080
+4. Abra o browser no endereço http://localhost:8080/people
 
 5. Enjoy
