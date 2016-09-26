@@ -7,9 +7,10 @@ Exercícios de DOJOS para aprender NodeJs
 
 ```ssh
 npm install
+mkdir config
 ```
     
-2. Crie um arquivo de config.js dentro da pasta config com o seguinte formato
+2. Crie um arquivo config.js dentro da pasta config com o seguinte formato
 
 ```js
 module.exports = {  
