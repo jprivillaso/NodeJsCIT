@@ -13,10 +13,24 @@ mkdir config
 2. Crie um arquivo config.js dentro da pasta config com o seguinte formato
 
 ```js
-module.exports = {  
-    user: 'user', 
-    password: 'password'
-}
+module.exports = {
+    api: {
+        user: 'user',
+        password: 'password'
+    },
+    server: {
+        host: 'localhost',
+        port: 8080
+    },
+    consign: {
+        verbose: false
+    },
+    redis: {
+        host: '127.0.0.1',
+        port: 6379,
+        db: 0
+    }
+};
 ```
 
 3. Instale Redis. 
