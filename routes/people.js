@@ -26,7 +26,7 @@ var peopleRoutes = function(app, db) {
 
   });
   
-  app.get('/people/getCountByRole/:role', function(req, res) {
+  app.get('/people/countByRole/:role', function(req, res) {
      
     var role = req.params.role; 
        
@@ -38,7 +38,7 @@ var peopleRoutes = function(app, db) {
     
   });
   
-  app.get('/people/getCouchWithMaxCouchees', function(req, res) {
+  app.get('/people/couchWithMaxCouchees', function(req, res) {
     
     peopleService.getCouchWithMaxCouchees(function(couchName){
       res.json(couchName);
