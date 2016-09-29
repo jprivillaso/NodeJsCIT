@@ -32,7 +32,7 @@ function loadDataInDb(db) {
 
 function getAll(callback, db) {
     
-    var peoplelist = [];
+    var peopleList = [];
     
     async.series([function(){
         
@@ -42,18 +42,18 @@ function getAll(callback, db) {
                 throw new Error('Error retrieving peopleList form redis');
             }
             
-            peopleList = JSON.parse(peopleData);
+            peopleList = peopleData;
             callback(peopleList);
             
         });
       
-    }], callback.bind(peoplelist));
+    }], callback.bind(peopleList));
     
 }
 
 function getAllByFilters(callback, query) {
     
-    var peoplelist = [];
+    var peopleList = [];
     
     async.series([function(){
         
@@ -61,12 +61,12 @@ function getAllByFilters(callback, query) {
                 
         request(options, function(error, response, body) {
                 
-            peoplelist = body;
-            callback(peoplelist);
+            peopleList = body;
+            callback(peopleList);
             
         });
       
-    }], callback.bind(peoplelist));
+    }], callback.bind(peopleList));
     
 }
 
@@ -83,6 +83,7 @@ function getCountByRole (callback, role, db) {
             }
             
             var peopleList = JSON.parse(body);
+            console.log(peopleList);
             
             peopleList = _.filter(peopleList, function(person) {
                 return person[4].toLowerCase() === role.toLowerCase();
@@ -130,10 +131,126 @@ function getCouchWithMaxCouchees (callback, db) {
     
 }
 
+function save(callback, person, db) {
+    
+    var savedPerson = null;
+    
+    async.series([function(){
+        
+        db.get('peopleList', function(err, peopleList) {
+        
+            if (peopleList) {
+                peopleList = JSON.parse(peopleList);
+            } else {
+                peopleList = [];
+            }
+            
+            peopleList.push([
+                person.name || '', 
+                person.login || '', 
+                person.number || '', 
+                person.mobileNumber || '', 
+                person.role || '', 
+                person.couch || '',
+                person.couch || '', 
+                person.location || ''
+            ]);
+            
+            db.set('peopleList', JSON.stringify(peopleList));
+            savedPerson = person;
+                
+        });
+            
+    }], callback.bind(savedPerson));
+    
+    
+}
+
+function update(callback, newPerson, db) {
+    
+    var savedPerson = null;
+    
+    async.series([function(){
+        
+        db.get('peopleList', function(err, peopleList) {
+            
+            if (_.isEmpty(peopleList)) {
+                throw new Error('Error retrieving peopleList from redis');
+            } 
+            
+            peopleList = JSON.parse(peopleList);
+            
+            var existentPersonIndex = _.findIndex(peopleList,  function(person){
+                return person[1] === newPerson.login;
+            });
+            
+            if (existentPersonIndex != -1 ) {
+                
+                var personToUpdate = [
+                newPerson.name || '', 
+                newPerson.login || '', 
+                newPerson.number || '', 
+                newPerson.mobileNumber || '', 
+                newPerson.role || '', 
+                newPerson.couch || '',
+                newPerson.couch || '', 
+                newPerson.location || ''
+                ];
+                
+                peopleList[existentPersonIndex] = personToUpdate;
+                db.set('peopleList', JSON.stringify(peopleList));
+                
+            }
+            
+            savedPerson = newPerson;
+            
+            callback(savedPerson);
+            
+        });
+        
+    }], callback.bind(savedPerson));
+    
+}
+
+function deletePerson(callback, username, db) {
+    
+    var deletedPerson = null;
+    
+    async.series([function(){
+        
+        db.get('peopleList', function(err, peopleList){
+            
+            peopleList = JSON.parse(peopleList);
+            
+            var index = _.findIndex(peopleList, function(person){
+                return person[1] === username;
+            });
+            
+            console.log(index);
+            
+            if (index != -1) {
+                
+                deletedPerson = peopleList[index];  
+                peopleList.splice(index, 1);
+                db.set('peopleList', JSON.stringify(peopleList));
+                 
+            }
+            
+            callback(deletedPerson);
+            
+        });
+        
+    }], callback.bind(deletedPerson));
+    
+}
+
 module.exports = {
     loadDataInDb            : loadDataInDb,
     getAll                  : getAll,
     getAllByFilters         : getAllByFilters,
     getCountByRole          : getCountByRole,
-    getCouchWithMaxCouchees : getCouchWithMaxCouchees
+    getCouchWithMaxCouchees : getCouchWithMaxCouchees,
+    update                  : update,
+    save                    : save,
+    delete                  : deletePerson
 };

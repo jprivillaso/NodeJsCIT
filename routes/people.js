@@ -13,21 +13,13 @@ var peopleRoutes = function(app, db) {
       var q = queryFilters.q; 
              
       peopleService.getAllByFilters(function(peopleList){
-        
-        peopleList = JSON.parse(peopleList);
-        db.set('peopleList', JSON.stringify(peopleList.data));
-        res.send(peopleList.data);
-        
+        res.send(peopleList);
       }, q);
       
     } else {
       
       peopleService.getAll(function(peopleList){
-        
-        peopleList = JSON.parse(peopleList);
-        db.set('peopleList', JSON.stringify(peopleList.data));
-        res.send(peopleList.data);
-        
+        res.send(peopleList);
       }, db);
        
     }
@@ -58,29 +50,9 @@ var peopleRoutes = function(app, db) {
     
     var person = req.body;
     
-    db.get('peopleList', function(err, peopleList) {
-      
-      if (peopleList) {
-        peopleList = JSON.parse(peopleList);
-      } else {
-        peopleList = [];
-      }
-      
-      peopleList.push([
-        person.name || '', 
-        person.login || '', 
-        person.number || '', 
-        person.mobileNumber || '', 
-        person.role || '', 
-        person.couch || '',
-        person.couch || '', 
-        person.location || ''
-      ]);
-      
-      db.set('peopleList', JSON.stringify(peopleList));
-      res.json(person);
-      
-    });    
+    peopleService.save(function(savedPerson){
+      res.json(savedPerson);
+    }, person, db);
     
   });
   
@@ -91,42 +63,21 @@ var peopleRoutes = function(app, db) {
     if (_.isEmpty(newPerson)) {
       throw new Error('Person inside body is missing');
     }
+  
+    peopleService.update(function(savedPerson){
+      res.json(savedPerson);
+    }, newPerson, db);
     
-    db.get('peopleList', function(err, peopleList) {
-      
-      if (_.isEmpty(peopleList)) {
-        throw new Error('Error retrieving peopleList from redis');
-      } 
-      
-      peopleList = JSON.parse(peopleList);
-      
-      var existentPersonIndex = _.findIndex(peopleList,  function(person){
-        return person[1] === newPerson.login;
-      });
-      
-      console.log(existentPersonIndex);
-      
-      if (existentPersonIndex != -1 ) {
-        
-        var personToUpdate = [
-          newPerson.name || '', 
-          newPerson.login || '', 
-          newPerson.number || '', 
-          newPerson.mobileNumber || '', 
-          newPerson.role || '', 
-          newPerson.couch || '',
-          newPerson.couch || '', 
-          newPerson.location || ''
-        ];
-        
-        peopleList[existentPersonIndex] = personToUpdate;
-        db.set('peopleList', JSON.stringify(peopleList));
-        
-      }
-      
-      res.json(peopleList);
-            
-    });
+  });
+  
+  //login is acting as the identifier
+  app.delete('/people/:username', function(req, res){
+    
+    var username = req.params.username;
+    
+    peopleService.delete(function(deletedPerson){
+      res.json(deletedPerson);
+    }, username, db);
     
   });
   
