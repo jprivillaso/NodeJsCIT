@@ -1,28 +1,49 @@
+'use strict';
+
 var request = require('request');
 var conf    = require('../config/config');
 var async   = require('async');
+var _       = require('lodash');
 
-const baseUrl = 'https://people.cit.com.br/search/json/';
+var baseService = require('./baseService');
+const BASE_URL  = baseService.BASE_URL;
+var options     = baseService.OPTIONS;
 
-var options = {
-  auth: {
-    user: conf.api.user,
-    password: conf.api.password
-  }
-}
+const COUNTRIES = '?q=BRASIL OR USA OR JAPAN OR CHINA OR ENGLAND';
 
-function getAll(callback) {
+function loadDataInDb(db) {
     
     var peoplelist = [];
     
-    async.series([function(callback){
+    options.url = BASE_URL + COUNTRIES;
+    
+    request(options, function(error, response, body) {
         
-        options.url = baseUrl + '?q=BRASIL%20and%20Developer%20and%20BH';
+        if (error) {
+            throw new Error('Unable to get data from PEOPLE API');
+        }
         
-        request(options, function(error, response, body) {
+        var peopleList = JSON.parse(body);
+        db.set('peopleList', JSON.stringify(peopleList.data));
+        
+    });
+      
+}
+
+function getAll(callback, db) {
+    
+    var peoplelist = [];
+    
+    async.series([function(){
+        
+        db.get('peopleList', function(err, peopleData) {
             
-            peoplelist = body;
-            callback(peoplelist, null);
+            if (err) {
+                throw new Error('Error retrieving peopleList form redis');
+            }
+            
+            peopleList = JSON.parse(peopleData);
+            callback(peopleList);
             
         });
       
@@ -34,9 +55,9 @@ function getAllByFilters(callback, query) {
     
     var peoplelist = [];
     
-    async.series([function(callback){
+    async.series([function(){
         
-        options.url = baseUrl + '?q=' + query;
+        options.url = BASE_URL + '?q=' + query;
                 
         request(options, function(error, response, body) {
                 
@@ -49,7 +70,70 @@ function getAllByFilters(callback, query) {
     
 }
 
+function getCountByRole (callback, role, db) {
+  
+    var peopleCount = null;
+    
+    async.series([function(){
+        
+        db.get('peopleList', function(err, body){
+        
+            if (err) {
+                throw new Error('Error retrieving peopleList');
+            }
+            
+            var peopleList = JSON.parse(body);
+            
+            peopleList = _.filter(peopleList, function(person) {
+                return person[4].toLowerCase() === role.toLowerCase();
+            });
+            
+            peopleCount = peopleList.length;
+            callback(peopleCount);
+            
+        });
+        
+    }], callback.bind(peopleCount));
+  
+}
+
+function getCouchWithMaxCouchees (callback, db) {
+    
+  var peopleCount = null;
+    
+  async.series([function(){
+      
+    db.get('peopleList', function(err, peopleData) {
+        
+        var peopleList = JSON.parse(peopleData);
+        
+        var peopleOrderedByCouch = _.omit(_.groupBy(peopleList, function(a) {return a[5];}), '');
+        var maxCouchCount = 0;
+        var couchName = '';
+        
+        for (var couch in peopleOrderedByCouch) {
+            if (peopleOrderedByCouch.hasOwnProperty(couch)) {
+                
+                if (peopleOrderedByCouch[couch].length > maxCouchCount) {
+                    couchName = couch;
+                    maxCouchCount = peopleOrderedByCouch[couch].length;
+                }
+                
+            }
+        } 
+        
+        callback({couchName: couchName, maxCouchCount: maxCouchCount});
+        
+    });
+    
+  }], callback.bind(peopleCount));
+    
+}
+
 module.exports = {
-    getAll: getAll,
-    getAllByFilters: getAllByFilters
+    loadDataInDb            : loadDataInDb,
+    getAll                  : getAll,
+    getAllByFilters         : getAllByFilters,
+    getCountByRole          : getCountByRole,
+    getCouchWithMaxCouchees : getCouchWithMaxCouchees
 };
